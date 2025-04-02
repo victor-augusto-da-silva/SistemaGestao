@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.messages import constants
 from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib import auth
 
 
 def cadastro(request):
@@ -14,7 +16,7 @@ def cadastro(request):
         confirmar_senha = request.POST.get('confirmar_senha')
         if senha != confirmar_senha:
             messages.add_message(request,constants.ERROR, 'Senha e confirmar senha devem ser iguais')
-            print('Estou aqui')
+           
             return redirect('/usuarios/cadastro/')
           
         if len(senha) <4:
@@ -32,3 +34,20 @@ def cadastro(request):
           password=senha)
        
     return redirect('/usuarios/login/')
+
+def login(request):
+    if request.method=='GET':
+        return render(request,'login.html')
+    elif request.method=='POST':
+        username = request.POST.get('username') 
+        senha = request.POST.get('senha') 
+
+        user = authenticate(request,username=username,password = senha)
+        if user:
+            auth.login (request,user)
+            return redirect('/mentorados/')
+        
+        messages.add_message(request,constants.ERROR, 'Usuario ou senha invalidos!')
+        return redirect('login')
+        
+        return HttpResponse(user)
