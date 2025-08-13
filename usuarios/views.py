@@ -9,21 +9,24 @@ from django.contrib import auth
 
 def cadastro(request):
     if request.method == 'GET':
-            return render(request,'cadastro.html')
+        return render(request, 'cadastro.html')
+    
     elif request.method == 'POST':
         username = request.POST.get('username')
-        senha = request.POST.get('senha')
-        confirmar_senha = request.POST.get('confirmar_senha')
-        if senha != confirmar_senha:
-            messages.add_message(request,constants.ERROR, 'Senha e confirmar senha devem ser iguais')
-           
-            return redirect('/usuarios/cadastro/')
-          
-        if len(senha) <4:
-          messages.add_message(request,constants.ERROR, 'Senha deve ter 4 ou mais caracteres')
-          return redirect('/usuarios/cadastro/')
+        senha = request.POST.get('senha') or ""  # Garante que senha nunca seja None
+        confirmar_senha = request.POST.get('confirmar_senha') or ""
 
-        users = User.objects.filter(username=username)
+        if not username or not senha or not confirmar_senha:
+            messages.add_message(request, constants.ERROR, 'Todos os campos são obrigatórios.')
+            return redirect('/usuarios/cadastro/')
+
+        if senha != confirmar_senha:
+            messages.add_message(request, constants.ERROR, 'Senha e confirmar senha devem ser iguais.')
+            return redirect('/usuarios/cadastro/')
+
+        if len(senha) < 4:
+            messages.add_message(request, constants.ERROR, 'Senha deve ter 4 ou mais caracteres.')
+            return redirect('/usuarios/cadastro/')
         
         if users.exists():
             messages.add_message(request,constants.ERROR, 'Usuario ja existente')
